@@ -343,6 +343,18 @@ class Grid:
 
         self.grid = [None] * width * height
 
+    def where_is(self, key):
+        if isinstance(key, tuple):
+            for i in range(len(self.grid)):
+                if self.grid[i] is None:
+                    continue
+                if (self.grid[i].color, self.grid[i].type) == key:
+                    break
+                if key[0] is None and key[1] == self.grid[i].type:
+                    break
+            return i
+        return None
+
     def __contains__(self, key):
         if isinstance(key, WorldObj):
             for e in self.grid:

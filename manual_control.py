@@ -7,12 +7,57 @@ import gym
 import gym_minigrid
 from gym_minigrid.wrappers import *
 from gym_minigrid.window import Window
+import random
 
 def redraw(img):
     if not args.agent_view:
         img = env.render('rgb_array', tile_size=args.tile_size)
 
     window.show_img(img)
+
+def observe():
+    grid, _ = env.gen_obs_grid()
+    return grid
+
+def skill_get_key():
+    # first need to explore and see where the key is
+    grid = observe()
+    while ('yellow', 'key') not in grid:
+        move_action_list = [env.actions.left, env.actions.right, env.actions.forward]
+        action = random.choice(move_action_list)
+        print(action)
+        step(action)
+        grid = observe()
+    # then go to the key
+    idx = grid.where_is(('yellow', 'key'))
+    print(idx)
+    while idx < 42 and idx != 38:
+        step(env.actions.forward)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'key'))
+    if idx == 38:
+        pass
+    elif idx < 45:
+        step(env.actions.left)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'key'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('yellow', 'key'))
+    elif idx > 45:
+        step(env.actions.right)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'key'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('yellow', 'key'))
+    step(env.actions.pickup)
+
+def obs():
+    grid = observe()
+    grid_2d = np.array(grid.grid).reshape(grid.width, grid.height)
 
 def reset():
     if args.seed != -1:
@@ -38,6 +83,15 @@ def step(action):
 
 def key_handler(event):
     print('pressed', event.key)
+    if event.key == 'i':
+        print('inspecting')
+        obs()
+        return
+
+    if event.key == 'k':
+        print('finding key')
+        skill_get_key()
+        return
 
     if event.key == 'escape':
         window.close()
@@ -76,7 +130,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "--env",
     help="gym environment to load",
-    default='MiniGrid-MultiRoom-N6-v0'
+    default='MiniGrid-DoorKey-8x8-v0'
 )
 parser.add_argument(
     "--seed",
