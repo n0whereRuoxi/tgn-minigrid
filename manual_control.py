@@ -30,7 +30,6 @@ def skill_get_key():
         grid = observe()
     # then go to the key
     idx = grid.where_is(('yellow', 'key'))
-    print(idx)
     while idx < 42 and idx != 38:
         step(env.actions.forward)
         grid = observe()
@@ -54,6 +53,91 @@ def skill_get_key():
             grid = observe()
             idx = grid.where_is(('yellow', 'key'))
     step(env.actions.pickup)
+
+def skill_open_door():
+    # first need to explore and see where the door is
+    grid = observe()
+    while ('yellow', 'door') not in grid:
+        move_action_list = [env.actions.left, env.actions.right, env.actions.forward]
+        action = random.choice(move_action_list)
+        print(action)
+        step(action)
+        grid = observe()
+    # then go to the door
+    idx = grid.where_is(('yellow', 'door'))
+    while idx < 42 and idx != 38:
+        if grid.get(3,5) and grid.get(3,5).type == 'wall':
+            if idx < 45:
+                step(env.actions.left)
+            else:
+                step(env.actions.right)
+            grid = observe()
+            idx = grid.where_is(('yellow', 'door'))
+            print(idx)
+            continue
+        step(env.actions.forward)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'door'))
+        print(idx)
+    if idx == 38:
+        pass
+    elif idx < 45:
+        step(env.actions.left)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'door'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('yellow', 'door'))
+    elif idx > 45:
+        step(env.actions.right)
+        grid = observe()
+        idx = grid.where_is(('yellow', 'door'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('yellow', 'door'))
+    step(env.actions.toggle)
+
+
+def skill_cross_door():
+    step(env.actions.forward)
+    step(env.actions.forward)
+
+def skill_goal():
+    # first need to explore and see where the goal is
+    grid = observe()
+    while ('green', 'goal') not in grid:
+        move_action_list = [env.actions.left, env.actions.right, env.actions.forward]
+        action = random.choice(move_action_list)
+        print(action)
+        step(action)
+        grid = observe()
+    # then go to the goal
+    idx = grid.where_is(('green', 'goal'))
+    while idx < 42 and idx != 38:
+        step(env.actions.forward)
+        grid = observe()
+        idx = grid.where_is(('green', 'goal'))
+    if idx == 38:
+        pass
+    elif idx < 45:
+        step(env.actions.left)
+        grid = observe()
+        idx = grid.where_is(('green', 'goal'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('green', 'goal'))
+    elif idx > 45:
+        step(env.actions.right)
+        grid = observe()
+        idx = grid.where_is(('green', 'goal'))
+        while idx != 38:
+            step(env.actions.forward)
+            grid = observe()
+            idx = grid.where_is(('green', 'goal'))
+    step(env.actions.forward)
 
 def obs():
     grid = observe()
@@ -88,9 +172,24 @@ def key_handler(event):
         obs()
         return
 
-    if event.key == 'k':
+    if event.key == '1':
         print('finding key')
         skill_get_key()
+        return
+    
+    if event.key == '2':
+        print('opening the door')
+        skill_open_door()
+        return
+
+    if event.key == '3':
+        print('crossing the door')
+        skill_cross_door()
+        return
+
+    if event.key == '4':
+        print('goal')
+        skill_goal()
         return
 
     if event.key == 'escape':
