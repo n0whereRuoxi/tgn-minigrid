@@ -19,6 +19,28 @@ def observe():
     grid, _ = env.gen_obs_grid()
     return grid
 
+def goal_goal():
+    # fake method to goal
+    method_goal()
+    
+def method_goal():
+    goal_got_key()
+    goal_opened_door()
+    goal_crossed_door()
+    goal_reached_goal()
+
+def goal_got_key():
+    skill_get_key()
+
+def goal_opened_door():
+    skill_open_door()
+
+def goal_crossed_door():
+    skill_cross_door()
+
+def goal_reached_goal():
+    skill_goal()
+
 def skill_get_key():
     # first need to explore and see where the key is
     grid = observe()
@@ -66,8 +88,15 @@ def skill_open_door():
     # then go to the door
     idx = grid.where_is(('yellow', 'door'))
     while idx < 42 and idx != 38:
+        # if front is wall, turn
+        print(grid.grid)
+        fwd_pos = env.front_pos
+        fwd_cell = grid.get(*fwd_pos)
+        print('front1: ', fwd_pos, fwd_cell)
+        print('front2: ', (3,5), grid.get(3,5) )
         if grid.get(3,5) and grid.get(3,5).type == 'wall':
-            if idx < 45:
+            print(idx)
+            if idx < 38:
                 step(env.actions.left)
             else:
                 step(env.actions.right)
@@ -75,6 +104,7 @@ def skill_open_door():
             idx = grid.where_is(('yellow', 'door'))
             print(idx)
             continue
+        # keep going forward until door is observed in the front or on the side
         step(env.actions.forward)
         grid = observe()
         idx = grid.where_is(('yellow', 'door'))
@@ -190,6 +220,11 @@ def key_handler(event):
     if event.key == '4':
         print('goal')
         skill_goal()
+        return
+
+    if event.key == 'g':
+        print('go to goal')
+        goal_goal()
         return
 
     if event.key == 'escape':
